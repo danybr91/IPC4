@@ -4,47 +4,51 @@ import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Date;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.layout.FormSpecs;
 import javax.swing.JTextField;
 import javax.swing.Action;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import javax.swing.SwingConstants;
+import javax.swing.JTable;
 
 public class MainWrapper extends JFrame implements
 PropertyChangeListener{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5312499194754732142L;
 	private JPanel contentPane;
-	private JTextField txtLocal;
-	private JTextField textField;
-	private JTextField textField_1;
-	private JButton btnGuardar = new JButton("Guardar");
-	private Partido partido;
+	//private Modelo partidos;
+	private JTextField textLocal;
+	private JTextField textVisitante;
+	private JTextField textFecha;
+	private JButton btnGuardar_1;
+	private JPanel panel;
+	private JPanel panel_1;
+	private JButton btnModificar;
+	private JButton btnEliminar;
+	private JTable table;
 	
 	
-
-	public String getTxtLocal() {
-		return txtLocal.getText();
+	public String getLocal() {
+		return textLocal.getText();
 	}
 
-	public JTextField getTextField() {
-		return textField;
+	public String getVisitante() {
+		return textVisitante.getText();
 	}
-
-	public JTextField getTextField_1() {
-		return textField_1;
-	}
-
-	public JButton getBtnGuardar() {
-		return btnGuardar;
+	
+	public String getFecha() {
+		return textFecha.getText();
 	}
 
 	/**
@@ -54,9 +58,10 @@ PropertyChangeListener{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Partido p = new Partido();
-					MainWrapper frame = new MainWrapper(p);
-					frame.setVisible(true);
+					Modelo miModelo = new Modelo();
+					MainWrapper vista = new MainWrapper(miModelo);
+					vista.setGuardarAction(new GuardarAction(miModelo,vista));
+					vista.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -67,100 +72,138 @@ PropertyChangeListener{
 	/**
 	 * Create the frame.
 	 */
-	public MainWrapper(Partido p) {
-		//Definimos el partido
-		partido = p;
+	public MainWrapper(Modelo m) {
 		//Anhadimos listener
-		partido.addPropertyChangeListener(this);
+		m.addChangeListener(this);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 555, 339);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		contentPane.setLayout(new FormLayout(new ColumnSpec[] {
-				FormSpecs.RELATED_GAP_COLSPEC,
-				FormSpecs.DEFAULT_COLSPEC,
-				FormSpecs.RELATED_GAP_COLSPEC,
-				FormSpecs.DEFAULT_COLSPEC,
-				FormSpecs.RELATED_GAP_COLSPEC,
-				FormSpecs.DEFAULT_COLSPEC,
-				FormSpecs.RELATED_GAP_COLSPEC,
-				FormSpecs.DEFAULT_COLSPEC,
-				FormSpecs.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("default:grow"),},
-			new RowSpec[] {
-				FormSpecs.RELATED_GAP_ROWSPEC,
-				FormSpecs.DEFAULT_ROWSPEC,
-				FormSpecs.RELATED_GAP_ROWSPEC,
-				FormSpecs.DEFAULT_ROWSPEC,
-				FormSpecs.RELATED_GAP_ROWSPEC,
-				FormSpecs.DEFAULT_ROWSPEC,
-				FormSpecs.RELATED_GAP_ROWSPEC,
-				FormSpecs.DEFAULT_ROWSPEC,
-				FormSpecs.RELATED_GAP_ROWSPEC,
-				FormSpecs.DEFAULT_ROWSPEC,
-				FormSpecs.RELATED_GAP_ROWSPEC,
-				FormSpecs.DEFAULT_ROWSPEC,
-				FormSpecs.RELATED_GAP_ROWSPEC,
-				FormSpecs.DEFAULT_ROWSPEC,}));
-		contentPane.setLayout(new FormLayout(new ColumnSpec[] {
-				ColumnSpec.decode("1px"),},
-			new RowSpec[] {
-				RowSpec.decode("1px"),}));
+		contentPane.setLayout(new BorderLayout(0, 0));
 		
-		JLabel lblIngreseDatosDel = new JLabel("Ingrese datos del partido");
-		contentPane.add(lblIngreseDatosDel, "1, 1, fill, fill");
+		panel = new JPanel();
+		contentPane.add(panel, BorderLayout.WEST);
+		GridBagLayout gbl_panel = new GridBagLayout();
+		gbl_panel.columnWidths = new int[] {30, 86, 0, 0, 45};
+		gbl_panel.rowHeights = new int[]{23, 0, 0, 0, 0, 0, 0};
+		gbl_panel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_panel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		panel.setLayout(gbl_panel);
+		panel.setMaximumSize(getMinimumSize());
 		
-		JLabel lblLocal = new JLabel("Local");
-		contentPane.add(lblLocal, "1, 1, fill, fill");
+		JLabel lblLocal = new JLabel("Local:");
+		GridBagConstraints gbc_lblLocal = new GridBagConstraints();
+		gbc_lblLocal.anchor = GridBagConstraints.EAST;
+		gbc_lblLocal.insets = new Insets(0, 0, 5, 5);
+		gbc_lblLocal.gridx = 1;
+		gbc_lblLocal.gridy = 2;
+		panel.add(lblLocal, gbc_lblLocal);
 		
-		txtLocal = new JTextField();
-		contentPane.add(txtLocal, "1, 1, fill, fill");
-		txtLocal.setColumns(10);
+		textLocal = new JTextField();
+		GridBagConstraints gbc_textLocal = new GridBagConstraints();
+		gbc_textLocal.anchor = GridBagConstraints.WEST;
+		gbc_textLocal.insets = new Insets(0, 0, 5, 5);
+		gbc_textLocal.gridx = 2;
+		gbc_textLocal.gridy = 2;
+		panel.add(textLocal, gbc_textLocal);
+		textLocal.setColumns(10);
 		
-		JLabel lblVisitante = new JLabel("Visitante");
-		contentPane.add(lblVisitante, "1, 1, fill, fill");
+		JLabel lblVisitante = new JLabel("Visitante:");
+		GridBagConstraints gbc_lblVisitante = new GridBagConstraints();
+		gbc_lblVisitante.anchor = GridBagConstraints.EAST;
+		gbc_lblVisitante.insets = new Insets(0, 0, 5, 5);
+		gbc_lblVisitante.gridx = 1;
+		gbc_lblVisitante.gridy = 3;
+		panel.add(lblVisitante, gbc_lblVisitante);
 		
-		textField_1 = new JTextField();
-		contentPane.add(textField_1, "1, 1, fill, fill");
-		textField_1.setColumns(10);
+		textVisitante = new JTextField();
+		GridBagConstraints gbc_textVisitante = new GridBagConstraints();
+		gbc_textVisitante.anchor = GridBagConstraints.WEST;
+		gbc_textVisitante.insets = new Insets(0, 0, 5, 5);
+		gbc_textVisitante.gridx = 2;
+		gbc_textVisitante.gridy = 3;
+		panel.add(textVisitante, gbc_textVisitante);
+		textVisitante.setColumns(10);
 		
-		JLabel lblFecha = new JLabel("fecha");
-		contentPane.add(lblFecha, "1, 1, fill, fill");
+		JLabel lblFecha = new JLabel("Fecha:");
+		GridBagConstraints gbc_lblFecha = new GridBagConstraints();
+		gbc_lblFecha.anchor = GridBagConstraints.EAST;
+		gbc_lblFecha.insets = new Insets(0, 0, 5, 5);
+		gbc_lblFecha.gridx = 1;
+		gbc_lblFecha.gridy = 4;
+		panel.add(lblFecha, gbc_lblFecha);
 		
-		textField = new JTextField();
-		contentPane.add(textField, "1, 1, fill, fill");
-		textField.setColumns(10);
+		textFecha = new JTextField();
+		GridBagConstraints gbc_textFecha = new GridBagConstraints();
+		gbc_textFecha.anchor = GridBagConstraints.WEST;
+		gbc_textFecha.insets = new Insets(0, 0, 5, 5);
+		gbc_textFecha.gridx = 2;
+		gbc_textFecha.gridy = 4;
+		panel.add(textFecha, gbc_textFecha);
+		textFecha.setColumns(10);
 		
-		JButton btnGuardar = new JButton("Guardar");
-		btnGuardar.addActionListener(new ActionListener() {
+		btnGuardar_1 = new JButton("Guardar");
+		btnGuardar_1.setHorizontalAlignment(SwingConstants.LEFT);
+		btnGuardar_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
 			}
 		});
-		contentPane.add(btnGuardar, "1, 1, fill, fill");
+		GridBagConstraints gbc_btnGuardar_1 = new GridBagConstraints();
+		gbc_btnGuardar_1.insets = new Insets(0, 0, 0, 5);
+		gbc_btnGuardar_1.gridx = 1;
+		gbc_btnGuardar_1.gridy = 5;
+		panel.add(btnGuardar_1, gbc_btnGuardar_1);
+		
+		btnModificar = new JButton("Modificar");
+		GridBagConstraints gbc_btnModificar = new GridBagConstraints();
+		gbc_btnModificar.insets = new Insets(0, 0, 0, 5);
+		gbc_btnModificar.gridx = 2;
+		gbc_btnModificar.gridy = 5;
+		panel.add(btnModificar, gbc_btnModificar);
+		
+		btnEliminar = new JButton("Eliminar");
+		GridBagConstraints gbc_btnEliminar = new GridBagConstraints();
+		gbc_btnEliminar.insets = new Insets(0, 0, 0, 5);
+		gbc_btnEliminar.gridx = 3;
+		gbc_btnEliminar.gridy = 5;
+		panel.add(btnEliminar, gbc_btnEliminar);
+		
+		panel_1 = new JPanel();
+		contentPane.add(panel_1, BorderLayout.CENTER);
+		panel_1.setLayout(new BorderLayout(0, 0));
+		
+		table = new JTable();
+		panel_1.add(table, BorderLayout.CENTER);
+		
+		JLabel lblNewLabel = new JLabel("Introduce los datos del partido");
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		contentPane.add(lblNewLabel, BorderLayout.NORTH);
 	}
 	
 	public void setGuardarAction(Action action)
 	{
-		btnGuardar.setAction(action);
+		btnGuardar_1.setAction(action);	
 	}
 	
+	public void setModificarAction(Action action){
+		
+	}
 	
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
+		System.out.println(evt.getPropertyName());
 		//Si la propiedad cambiada es guardar
-		if (evt.getPropertyName().equals("local"))
+		if (evt.getPropertyName().equals("Nuevo"))
 		{
 			//Actualizamos los datos
-			Date fecha = (Date)evt.getNewValue();
-			textField_1.setText(fecha.toString());
 			
+			System.out.println("Se ha actualizado algo");	
 						
 		}
 		
 	}
-
 }
